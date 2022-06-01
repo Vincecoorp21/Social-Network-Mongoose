@@ -1,10 +1,16 @@
 const mongoose = require('mongoose');
 
+const ObjectId = mongoose.SchemaTypes.ObjectId;
+
 const PostSchema = new mongoose.Schema(
   {
     title: String,
     body: String,
     username: String,
+    userId: {
+      type: ObjectId,
+      ref: 'User',
+    },
   },
   { timestamps: true }
 );
