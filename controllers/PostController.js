@@ -1,5 +1,10 @@
-const { update } = require('../models/Post');
+//const { update } = require('../models/Post');
+
 const Post = require('../models/Post');
+
+const User = require('../models/User');
+
+const Comment = require('../models/Comment');
 
 const PostController = {
   async create(req, res) {
@@ -70,6 +75,26 @@ const PostController = {
       console.log.error(error);
     }
   },
+  async getAllWComments(req, res) {
+    try {
+      const { page = 1, limit = 10 } = req.query;
+      const posts = await Post.find()
+        .populate('commentId')
+        .limit(limit * 1)
+        .skip((page - 1) * limit);
+      res.send(posts);
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
+  // async like (req, res) {
+  //   try {
+  //     const post = await Post.findByIdAndUpdate(req.params._id,
+  //     )
+
+  //   }
+  // }
 };
 
 module.exports = PostController;

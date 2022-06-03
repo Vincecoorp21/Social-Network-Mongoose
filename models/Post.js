@@ -4,13 +4,21 @@ const ObjectId = mongoose.SchemaTypes.ObjectId;
 
 const PostSchema = new mongoose.Schema(
   {
-    title: String,
-    body: String,
-    username: String,
+    title: {
+      type: String,
+      required: [true, 'Por favor el Post tiene que tener un título'],
+    },
+    body: {
+      type: String,
+      required: [true, 'Por favor el Post tiene que tener un Body'],
+    },
+    avatar: String,
+    likes: [{ type: ObjectId }],
     userId: {
       type: ObjectId,
       ref: 'User',
     },
+    commentId: [{ type: ObjectId, ref: 'Comment' }],
   },
   { timestamps: true }
 );

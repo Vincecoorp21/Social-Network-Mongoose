@@ -6,39 +6,51 @@ const transporter = require('../config/nodemailer');
 
 const jwt = require('jsonwebtoken');
 
-const { jwt_secret } = require('../config/keys');
-const { update } = require('./PostController');
+//const { jwt_secret } = require('../config/keys');
+
+require('dotenv').config();
+
+const jwt_secret = process.env.JWT_SECRET;
+
+const Post = require('../models/Post');
+
+//const { update } = require('./PostController');
 
 const UserController = {
   async create(req, res, next) {
     try {
-      const hash = bcrypt.hashSync(req.body.password, 10);
+      let hash;
+      if (req.body.password !== undefined) {
+        hash = bcrypt.hashSync(req.body.password, 10);
+      }
       const user = await User.create({
         ...req.body,
         password: hash,
         role: 'user',
         confirmed: false,
       });
+      console.log(user);
       //res.status(201).send('Usuario creado con éxito', user);
-      const emailToken = jwt.sign({ email: req.body.email }, jwt_secret);
-      const url = 'http://localhost:4000/users/confirm/' + req.body.email;
-      await transporter.sendMail({
-        to: req.body.email,
-        subject: 'Confirme su registro',
-        html: `<h3>Bienvenido, estás a un paso de registrarte </h3>
-        <a href="${url}"> Click para confirmar tu registro</a>
-        `,
-      });
+      //const emailToken = jwt.sign({ email: req.body.email }, jwt_secret);
+      // const url = 'http://localhost:4000/users/confirm/' + req.body.email;
+      // await transporter.sendMail({
+      //   to: req.body.email,
+      //   subject: 'Confirme su registro',
+      //   html: `<h3>Bienvenido, estás a un paso de registrarte </h3>
+      //   <a href="${url}"> Click para confirmar tu registro</a>
+      //   `,
+      // });
       res.status(201).send({
         message: 'Te hemos enviado un correo para confirmar el registro',
         user,
       });
     } catch (error) {
-      //error.origin = 'User';
-      res
-        .status(401)
-        .send({ message: 'Ha habido un problema al crear el usuario' });
+      console.log(error);
+      error.origin = 'User';
       next(error);
+      // res
+      //   .status(401)
+      //   .send({ message: 'Ha habido un problema al crear el usuario' });
     }
   },
   async confirm(req, res) {
@@ -119,6 +131,32 @@ const UserController = {
       res.status(500).send({
         message: 'Hubo un problema al intentar mostrar la info del usuario',
       });
+    }
+  },
+  async like(req, res) {
+    try {
+      const post = await Post.findByIdAndUpdate(
+        req.params._id,
+        { $push: { likes: req.user._id } },
+        { new: true }
+      );
+      res.send(post);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ message: 'Hay un problema con los Likes' });
+    }
+  },
+  async dislike(req, res) {
+    try {
+      const post = await Post.findByIdAndUpdate(
+        req.params._id,
+        { $pull: { likes: req.user._id } },
+        { new: true }
+      );
+      res.send(post);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ message: 'Hay un problema con los DisLikes' });
     }
   },
 };

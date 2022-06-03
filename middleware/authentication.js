@@ -1,8 +1,14 @@
 const User = require('../models/User');
 
+const Post = require('../models/Post');
+
 const jwt = require('jsonwebtoken');
 
-const { jwt_secret } = require('../config/keys');
+//const { jwt_secret } = require('../config/keys');
+
+require('dotenv').config();
+
+const jwt_secret = process.env.JWT_SECRET;
 
 const authentication = async (req, res, next) => {
   try {
@@ -25,4 +31,30 @@ const authentication = async (req, res, next) => {
   }
 };
 
-module.exports = { authentication };
+const isAdmin = async (req, res, next) => {
+  const admins = ['admin'];
+  if (!admins.includes(req.user.role)) {
+    return res.status(403).send({
+      message: 'You do not have permission',
+    });
+  }
+  next();
+};
+
+const isAuthor = async (req, res, next) => {
+  try {
+    const post = await Post.findById(req.params._id);
+    if (post.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).send({ message: 'Este post no es tuyo' });
+    }
+    next();
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({
+      error,
+      message: 'Ha habido un problema al comprobar la autoría del post',
+    });
+  }
+};
+
+module.exports = { authentication, isAdmin, isAuthor };
