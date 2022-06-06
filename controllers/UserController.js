@@ -159,6 +159,54 @@ const UserController = {
       res.status(500).send({ message: 'Hay un problema con los DisLikes' });
     }
   },
+  async follow(req, res) {
+    try {
+      const user = await User.findById(req.params._id);
+      if (user.followers.includes(req.user._id)) {
+        res.send('Ya estás siguiendo a este usuario');
+      } else {
+        const follow = await User.findByIdAndUpdate(
+          req.params._id,
+          { $push: { followers: req.user._id } },
+          { new: true }
+        );
+        await User.findByIdAndUpdate(
+          req.user._id,
+          { $push: { following: req.params._id } },
+          { new: true }
+        );
+        res.send({ msg: 'Usuario seguido con éxito', follow });
+      }
+    } catch (error) {
+      console.error(error);
+      res
+        .status(500)
+        .send({ message: 'Hay un problema dando un Follow a un usuario' });
+    }
+  },
+  async unfollow(req, res) {
+    try {
+      const user = await User.findById(req.params._id);
+      if (!user.followers.includes(req.user._id)) {
+        res.send('No estás siguiendo a este usuario');
+      } else {
+        const unfollow = await User.findByIdAndUpdate(
+          req.params._id,
+          { $pull: { followers: req.user._id } },
+          { new: true }
+        );
+        await User.findByIdAndUpdate(
+          req.user._id,
+          { $pull: { following: req.params._id } },
+          { new: true }
+        );
+        res.send({ msg: 'Ya no sigues a este usuario', unfollow });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ message: 'Hay un problema quitando un Follow' });
+    }
+  },
 };
 
 module.exports = UserController;
