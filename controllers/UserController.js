@@ -136,12 +136,17 @@ const UserController = {
   },
   async like(req, res) {
     try {
-      const post = await Post.findByIdAndUpdate(
-        req.params._id,
-        { $push: { likes: req.user._id } },
-        { new: true }
-      );
-      res.send(post);
+      const post = await Post.findById(req.params._id);
+      if (post.likes.includes(req.user._id)) {
+        res.send('Ya le diste a like a este post');
+      } else {
+        const post = await Post.findByIdAndUpdate(
+          req.params._id,
+          { $push: { likes: req.user._id } },
+          { new: true }
+        );
+        res.send(post);
+      }
     } catch (error) {
       console.error(error);
       res.status(500).send({ message: 'Hay un problema con los Likes' });
@@ -149,12 +154,17 @@ const UserController = {
   },
   async dislike(req, res) {
     try {
-      const post = await Post.findByIdAndUpdate(
-        req.params._id,
-        { $pull: { likes: req.user._id } },
-        { new: true }
-      );
-      res.send(post);
+      const post = await Post.findById(req.params._id);
+      if (post.likes.includes(req.user._id)) {
+        res.send('Ya le quitaste el like a este post');
+      } else {
+        const post = await Post.findByIdAndUpdate(
+          req.params._id,
+          { $pull: { likes: req.user._id } },
+          { new: true }
+        );
+        res.send(post);
+      }
     } catch (error) {
       console.error(error);
       res.status(500).send({ message: 'Hay un problema con los DisLikes' });
