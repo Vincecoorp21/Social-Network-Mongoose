@@ -9,6 +9,7 @@ const Comment = require('../models/Comment');
 const PostController = {
   async create(req, res) {
     try {
+      if (req.file) req.body.avatar = req.file.filename;
       const post = await Post.create({ ...req.body, userId: req.user._id });
       res.status(201).send(post);
     } catch (error) {

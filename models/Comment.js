@@ -15,6 +15,7 @@ const CommentSchema = new mongoose.Schema(
     body: {
       type: String,
     },
+    avatar: String,
   },
   { timestamps: true }
 );

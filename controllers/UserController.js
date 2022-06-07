@@ -23,6 +23,7 @@ const UserController = {
       if (req.body.password !== undefined) {
         hash = bcrypt.hashSync(req.body.password, 10);
       }
+      if (req.file) req.body.avatar = req.file.filename;
       const user = await User.create({
         ...req.body,
         password: hash,
@@ -205,6 +206,37 @@ const UserController = {
     } catch (error) {
       console.error(error);
       res.status(500).send({ message: 'Hay un problema quitando un Follow' });
+    }
+  },
+  async getUserPostFollowers(req, res) {
+    try {
+      const user = await User.findById(req.user._id).populate('postId');
+      user._doc.countfollowers = user.followers.length;
+      res.send(user);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ message: 'Hay un problema mostrando la info' });
+    }
+  },
+  async getUserById(req, res) {
+    try {
+      const user = await User.findById(req.params._id);
+      res.send(user);
+    } catch (error) {
+      console.error(error);
+    }
+  },
+  async getUserByName(req, res) {
+    try {
+      console.log(req);
+      if (req.params.name.length > 20) {
+        return res.status(400).send('Busqueda demasiado larga');
+      }
+      const name = new RegExp(req.params.name, 'i');
+      const user = await User.find({ name });
+      res.send(user);
+    } catch (error) {
+      console.log(error);
     }
   },
 };
