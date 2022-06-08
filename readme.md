@@ -80,6 +80,9 @@ Puedes consultar el proyecto en el siguiente enlace: https://redsocial-mongoose.
 
 ## Preview
 
+![foto](./public/assets/PostmanRed.png)
+![foto](./public/assets/PostmanDocRed.png))
+
 ## Author
 
 👤 **Vince BC**
