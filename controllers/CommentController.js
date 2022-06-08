@@ -1,6 +1,7 @@
 const Comment = require('../models/Comment');
 
 const Post = require('../models/Post');
+const { getAllusers } = require('./UserController');
 
 const CommentController = {
   async create(req, res) {
@@ -18,7 +19,18 @@ const CommentController = {
       console.error(error);
       res
         .status(500)
-        .send({ message: 'We had a problem adding the comment...' });
+        .send({
+          message: 'Hemos tenido un problema añadiendo el comentario...',
+        });
+    }
+  },
+  async getAllComments(req, res) {
+    try {
+      const comments = await Comment.find();
+      res.send(comments);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ msg: 'No hemos podido mostrar los comentarios' });
     }
   },
 };
