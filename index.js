@@ -1,13 +1,11 @@
 const express = require('express');
 const app = express();
 //const PORT = 4000;
-
+const PORT = process.env.PORT || 4001;
 const { typeError } = require('./middleware/errors');
 const { dbConnection } = require('./config/config');
 
 require('dotenv').config();
-
-const PORT = process.env.PORT || 4001;
 
 app.use(express.json());
 
