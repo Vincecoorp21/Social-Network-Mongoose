@@ -42,7 +42,7 @@ const PostController = {
   },
   async getById(req, res) {
     try {
-      const post = await Post.findById(req.params._id);
+      const post = await Post.findById(req.params._id).populate('commentId');
       res.send(post);
     } catch (error) {
       console.error(error);
@@ -79,10 +79,9 @@ const PostController = {
   async getAllWComments(req, res) {
     try {
       const { page = 1, limit = 10 } = req.query;
-      const posts = await Post.find()
-        .populate('commentId')
-        .limit(limit * 1)
-        .skip((page - 1) * limit);
+      const posts = await Post.find().populate('commentId').populate('userId');
+      // .limit(limit * 1)
+      // .skip((page - 1) * limit);
       res.send(posts);
     } catch (error) {
       console.error(error);

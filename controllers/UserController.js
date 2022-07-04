@@ -14,7 +14,7 @@ const jwt_secret = process.env.JWT_SECRET;
 
 const Post = require('../models/Post');
 
-//const { update } = require('./PostController');
+const { update } = require('./PostController');
 
 const UserController = {
   async create(req, res, next) {
@@ -24,11 +24,14 @@ const UserController = {
         hash = bcrypt.hashSync(req.body.password, 10);
       }
       if (req.file) req.body.avatar = req.file.filename;
+      else {
+        req.body.avatar = '../assets/users/1654535397828-goku.jpg';
+      }
       const user = await User.create({
         ...req.body,
         password: hash,
         role: 'user',
-        confirmed: false,
+        confirmed: true,
       });
       console.log(user);
       //res.status(201).send('Usuario creado con éxito', user);

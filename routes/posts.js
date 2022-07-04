@@ -33,5 +33,5 @@ router.put(
   uploadPostImages.single('imagePost'),
   PostController.update
 );
-router.get('/getallwith', authentication, PostController.getAllWComments);
+router.get('/getallwith', PostController.getAllWComments);
 module.exports = router;
