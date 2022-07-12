@@ -25,7 +25,7 @@ const UserController = {
       }
       if (req.file) req.body.avatar = req.file.filename;
       else {
-        req.body.avatar = '../assets/users/1654535397828-goku.jpg';
+        req.body.avatar = '/assets/users/profile-avatar-radom.jpeg';
       }
       const user = await User.create({
         ...req.body,
@@ -80,7 +80,9 @@ const UserController = {
   },
   //Login user_________>
   async login(req, res) {
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({ email: req.body.email }).populate(
+      'postId'
+    );
     //console.log(user);
     try {
       if (!user) {
@@ -127,7 +129,7 @@ const UserController = {
   //-----------------------Get USER Info -----------------//
   async getUserInfo(req, res) {
     try {
-      const user = await User.findById(req.user._id);
+      const user = await User.findById(req.user._id).populate('postId');
       console.log(user);
       res.send(user);
     } catch (error) {
@@ -147,7 +149,9 @@ const UserController = {
           req.params._id,
           { $push: { likes: req.user._id } },
           { new: true }
-        );
+        )
+          .populate('commentId')
+          .populate('userId');
         res.send(post);
       }
     } catch (error) {
@@ -157,17 +161,14 @@ const UserController = {
   },
   async dislike(req, res) {
     try {
-      const post = await Post.findById(req.params._id);
-      if (post.likes.includes(req.user._id)) {
-        res.send('Ya le quitaste el like a este post');
-      } else {
-        const post = await Post.findByIdAndUpdate(
-          req.params._id,
-          { $pull: { likes: req.user._id } },
-          { new: true }
-        );
-        res.send(post);
-      }
+      const post = await Post.findByIdAndUpdate(
+        req.params._id,
+        { $pull: { likes: req.user._id } },
+        { new: true }
+      )
+        .populate('commentId')
+        .populate('userId');
+      res.send(post);
     } catch (error) {
       console.error(error);
       res.status(500).send({ message: 'Hay un problema con los DisLikes' });

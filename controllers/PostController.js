@@ -11,6 +11,9 @@ const PostController = {
     try {
       if (req.file) req.body.avatar = req.file.filename;
       const post = await Post.create({ ...req.body, userId: req.user._id });
+      await User.findByIdAndUpdate(req.user._id, {
+        $push: { postId: post._id },
+      });
       res.status(201).send(post);
     } catch (error) {
       console.error(error);
@@ -34,7 +37,7 @@ const PostController = {
         return res.status(400).send('Busqueda demasiado larga');
       }
       const title = new RegExp(req.params.name, 'i');
-      const post = await Post.find({ title });
+      const post = await Post.find({ title }).populate('userId');
       res.send(post);
     } catch (error) {
       console.log(error);
@@ -42,7 +45,9 @@ const PostController = {
   },
   async getById(req, res) {
     try {
-      const post = await Post.findById(req.params._id).populate('commentId');
+      const post = await Post.findById(req.params._id)
+        .populate('commentId')
+        .populate('userId');
       res.send(post);
     } catch (error) {
       console.error(error);
